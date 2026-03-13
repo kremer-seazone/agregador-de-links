@@ -1,0 +1,17 @@
+{
+  "name": "agregador-links-agent",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node --import tsx/esm agent.ts",
+    "dev": "node --watch --import tsx/esm agent.ts"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "tsx": "^4.19.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
+}
