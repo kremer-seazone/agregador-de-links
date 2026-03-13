@@ -17,7 +17,7 @@ export function ProjectGrid({ projects: initialProjects }: ProjectGridProps) {
   const [modalOpen, setModalOpen] = useState(false)
   const [editingProject, setEditingProject] = useState<ProjectWithStatus | undefined>()
 
-  async function handleSave(data: Record<string, string>) {
+  async function handleSave(data: { name: string; description: string; localUrl: string; cloudUrl: string; startCmd: string; workingDir: string }) {
     if (editingProject) {
       const res = await fetch(`/api/projects/${editingProject.id}`, {
         method: 'PUT',
