@@ -1,5 +1,4 @@
 import { NextRequest } from 'next/server'
-import { createHash } from 'crypto'
 
 export function validateAgentSecret(request: NextRequest): boolean {
   const authHeader = request.headers.get('authorization')
@@ -8,13 +7,11 @@ export function validateAgentSecret(request: NextRequest): boolean {
   return token === process.env.AGENT_SECRET
 }
 
-export function hashPassword(password: string): string {
-  return createHash('sha256').update(password).digest('hex')
-}
-
+// Cookie armazena a senha diretamente (httpOnly + Secure + SameSite protege)
+// Evita usar Node.js crypto que não roda no Edge Runtime do middleware
 export function isValidSession(token: string | undefined): boolean {
   if (!token || !process.env.DASHBOARD_PASSWORD) return false
-  return token === hashPassword(process.env.DASHBOARD_PASSWORD)
+  return token === process.env.DASHBOARD_PASSWORD
 }
 
 export const SESSION_COOKIE = 'session'
