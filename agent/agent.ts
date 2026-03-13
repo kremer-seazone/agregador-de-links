@@ -63,6 +63,12 @@ async function poll() {
           continue
         }
 
+        if (!project.startCmd || !project.workingDir) {
+          console.error(`[agent] Projeto ${cmd.projectId} não tem startCmd/workingDir configurados`)
+          await reportStatus(cmd.projectId, 'error')
+          continue
+        }
+
         await reportStatus(cmd.projectId, 'starting')
         try {
           await startProcess(cmd.projectId, project.startCmd, project.workingDir)

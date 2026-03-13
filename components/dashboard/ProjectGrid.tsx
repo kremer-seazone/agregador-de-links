@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { ProjectWithStatus } from '@/types'
-import { ProjectInput } from '@/lib/schemas'
 import { ProjectCard } from './ProjectCard'
 import { ProjectModal } from '@/components/modals/ProjectModal'
 import { Button } from '@/components/ui/button'
@@ -18,7 +17,7 @@ export function ProjectGrid({ projects: initialProjects }: ProjectGridProps) {
   const [modalOpen, setModalOpen] = useState(false)
   const [editingProject, setEditingProject] = useState<ProjectWithStatus | undefined>()
 
-  async function handleSave(data: ProjectInput) {
+  async function handleSave(data: Record<string, string>) {
     if (editingProject) {
       const res = await fetch(`/api/projects/${editingProject.id}`, {
         method: 'PUT',

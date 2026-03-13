@@ -1,8 +1,7 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { projectSchema, ProjectInput } from '@/lib/schemas'
 import { Project } from '@/types'
 import {
   Dialog,
@@ -15,10 +14,19 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
+interface FormValues {
+  name: string
+  description: string
+  localUrl: string
+  cloudUrl: string
+  startCmd: string
+  workingDir: string
+}
+
 interface ProjectModalProps {
   open: boolean
   onClose: () => void
-  onSave: (data: ProjectInput) => Promise<void>
+  onSave: (data: FormValues) => Promise<void>
   project?: Project
 }
 
@@ -28,21 +36,23 @@ export function ProjectModal({ open, onClose, onSave, project }: ProjectModalPro
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<ProjectInput>({
-    resolver: zodResolver(projectSchema),
-    defaultValues: project ?? {
-      name: '',
-      description: '',
-      localUrl: '',
-      cloudUrl: '',
-      startCmd: '',
-      workingDir: '',
-    },
-  })
+  } = useForm<FormValues>()
 
-  async function onSubmit(data: ProjectInput) {
+  useEffect(() => {
+    if (open) {
+      reset({
+        name: project?.name ?? '',
+        description: project?.description ?? '',
+        localUrl: project?.localUrl ?? '',
+        cloudUrl: project?.cloudUrl ?? '',
+        startCmd: project?.startCmd ?? '',
+        workingDir: project?.workingDir ?? '',
+      })
+    }
+  }, [open, project, reset])
+
+  async function onSubmit(data: FormValues) {
     await onSave(data)
-    reset()
     onClose()
   }
 
@@ -55,7 +65,11 @@ export function ProjectModal({ open, onClose, onSave, project }: ProjectModalPro
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1">
             <Label htmlFor="name">Nome *</Label>
-            <Input id="name" {...register('name')} placeholder="meu-projeto" />
+            <Input
+              id="name"
+              {...register('name', { required: 'Nome é obrigatório' })}
+              placeholder="meu-projeto"
+            />
             {errors.name && <p className="text-xs text-red-500">{errors.name.message}</p>}
           </div>
           <div className="space-y-1">
@@ -66,23 +80,25 @@ export function ProjectModal({ open, onClose, onSave, project }: ProjectModalPro
             <div className="space-y-1">
               <Label htmlFor="localUrl">URL Local</Label>
               <Input id="localUrl" {...register('localUrl')} placeholder="http://localhost:3000" />
-              {errors.localUrl && <p className="text-xs text-red-500">{errors.localUrl.message}</p>}
             </div>
             <div className="space-y-1">
               <Label htmlFor="cloudUrl">URL Cloud</Label>
               <Input id="cloudUrl" {...register('cloudUrl')} placeholder="https://app.vercel.app" />
-              {errors.cloudUrl && <p className="text-xs text-red-500">{errors.cloudUrl.message}</p>}
             </div>
           </div>
           <div className="space-y-1">
-            <Label htmlFor="startCmd">Comando de Start *</Label>
+            <Label htmlFor="startCmd">
+              Comando de Start{' '}
+              <span className="text-muted-foreground text-xs">(necessário para iniciar localmente)</span>
+            </Label>
             <Input id="startCmd" {...register('startCmd')} placeholder="npm run dev" />
-            {errors.startCmd && <p className="text-xs text-red-500">{errors.startCmd.message}</p>}
           </div>
           <div className="space-y-1">
-            <Label htmlFor="workingDir">Diretório de Trabalho *</Label>
+            <Label htmlFor="workingDir">
+              Diretório de Trabalho{' '}
+              <span className="text-muted-foreground text-xs">(necessário para iniciar localmente)</span>
+            </Label>
             <Input id="workingDir" {...register('workingDir')} placeholder="/home/user/meu-projeto" />
-            {errors.workingDir && <p className="text-xs text-red-500">{errors.workingDir.message}</p>}
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>

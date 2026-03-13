@@ -1,12 +1,25 @@
 import { z } from 'zod'
 
+const str = (schema: z.ZodString) =>
+  z.preprocess((val) => (val === undefined || val === null ? '' : val), schema)
+
 export const projectSchema = z.object({
-  name: z.string().min(1, 'Nome é obrigatório').max(100),
-  description: z.string().max(500),
-  localUrl: z.string().url('URL local inválida').or(z.literal('')),
-  cloudUrl: z.string().url('URL cloud inválida').or(z.literal('')),
-  startCmd: z.string().min(1, 'Comando de start é obrigatório'),
-  workingDir: z.string().min(1, 'Diretório de trabalho é obrigatório'),
+  name: str(z.string().min(1, 'Nome é obrigatório').max(100)),
+  description: str(z.string().max(500)),
+  localUrl: str(
+    z.string().refine(
+      (val) => val === '' || z.string().url().safeParse(val).success,
+      'URL inválida (ex: http://localhost:3000)'
+    )
+  ),
+  cloudUrl: str(
+    z.string().refine(
+      (val) => val === '' || z.string().url().safeParse(val).success,
+      'URL inválida (ex: https://app.vercel.app)'
+    )
+  ),
+  startCmd: str(z.string()),
+  workingDir: str(z.string()),
 })
 
 export type ProjectInput = z.infer<typeof projectSchema>
