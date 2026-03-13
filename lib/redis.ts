@@ -16,6 +16,8 @@ export function getRedis(): Redis {
 
 export const redis = new Proxy({} as Redis, {
   get(_target, prop) {
-    return (getRedis() as unknown as Record<string | symbol, unknown>)[prop]
+    const instance = getRedis()
+    const value = (instance as unknown as Record<string | symbol, unknown>)[prop]
+    return typeof value === 'function' ? value.bind(instance) : value
   },
 })
