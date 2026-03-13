@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { isValidSession, SESSION_COOKIE } from '@/lib/auth'
 
-const PUBLIC = ['/login', '/api/agent']
+const PUBLIC = ['/login', '/api/auth', '/api/agent']
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
