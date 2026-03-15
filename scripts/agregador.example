@@ -1,0 +1,5 @@
+# ~/.agregador — configuração do Agregador de Links
+# Copie este arquivo para ~/.agregador e preencha os valores
+
+AGREGADOR_URL=https://seu-agregador.vercel.app
+AGENT_SECRET=seu-agent-secret-aqui
