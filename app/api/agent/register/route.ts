@@ -5,6 +5,30 @@ import { validateAgentSecret } from '@/lib/auth'
 import { Project } from '@/types'
 import { v4 as uuidv4 } from 'uuid'
 
+// Retorna lista de projetos cadastrados (para deduplicação pelo script)
+export async function GET(request: NextRequest) {
+  if (!validateAgentSecret(request)) {
+    return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+  }
+
+  try {
+    const ids = await redis.zrange('projects:index', 0, -1)
+    if (!ids.length) return NextResponse.json([])
+
+    const projects = await Promise.all(
+      ids.map(async (id) => {
+        const data = await redis.hmget(`project:${id}`, 'name', 'workingDir')
+        return { id, name: data[0] ?? '', workingDir: data[1] ?? '' }
+      })
+    )
+
+    return NextResponse.json(projects)
+  } catch (error) {
+    console.error('GET /api/agent/register error:', error)
+    return NextResponse.json({ error: 'Erro ao listar projetos' }, { status: 500 })
+  }
+}
+
 export async function POST(request: NextRequest) {
   if (!validateAgentSecret(request)) {
     return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
