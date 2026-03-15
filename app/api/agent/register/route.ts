@@ -18,7 +18,8 @@ export async function GET(request: NextRequest) {
     const projects = await Promise.all(
       ids.map(async (id) => {
         const data = await redis.hmget(`project:${id}`, 'name', 'workingDir')
-        return { id, name: data[0] ?? '', workingDir: data[1] ?? '' }
+        const [name, workingDir] = (data ?? []) as (string | null)[]
+        return { id, name: name ?? '', workingDir: workingDir ?? '' }
       })
     )
 
